@@ -1,0 +1,135 @@
+
+
+<!DOCTYPE html>
+
+<html lang="rw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iga Amategeko y’Umuhanda</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container" id="appContainer">
+  <h1 id="title">Iga Amategeko y’Umuhanda</h1>
+
+  <!-- Login View -->
+
+  <div id="loginView">
+    <h2>Injira</h2>
+    <input type="text" id="loginName" placeholder="Izina cyangwa username">
+    <input type="password" id="loginPass" placeholder="Password (abanyeshuri batayakenera)">
+    <button onclick="login()">Injira</button>
+  </div>
+
+  <!-- Admin Dashboard -->
+
+  <div id="adminView" style="display:none;">
+    <h2>Admin Dashboard</h2>
+    <h3>Gushyiramo Questions</h3>
+    <textarea id="newQuestion" placeholder="Q|opt1|opt2|opt3|opt4|answerIndex"></textarea>
+    <button onclick="addQuestion()">Ongeramo Question</button>
+
+```
+<h3>Gushyiramo Codes</h3>
+<input type="text" id="newCode" placeholder="Code">
+<input type="number" id="codeUses" placeholder="Number of Uses">
+<button onclick="addCode()">Ongeramo Code</button>
+
+<h3>Notes & Video Links</h3>
+<textarea id="notesArea" placeholder="Andika notes na video links hano"></textarea>
+<button onclick="saveNotes()">Save Notes & Links</button>
+
+<h3>Social Media Links</h3>
+<input type="text" id="fbLink" placeholder="Facebook URL">
+<input type="text" id="tiktokLink" placeholder="TikTok URL">
+<button onclick="saveSocial()">Save Social Links</button>
+
+<div id="adminStatus"></div>
+```
+
+  </div>
+
+  <!-- User Payment / Code / Exam View -->
+
+  <div id="userView" style="display:none;">
+    <div id="langSwitch">
+      <label>Hitamo Ururimi: </label>
+      <select id="langSelect" onchange="switchLang()">
+        <option value="rw">Kinyarwanda</option>
+        <option value="en">English</option>
+      </select>
+    </div>
+
+```
+<div id="paymentPrompt">
+  <p id="paymentText">Ugomba kwishyura mbere yo gutangira ikizamini. Ohereza screenshot kuri WhatsApp <b>0786959068</b> cyangwa code <b>344886 onesme</b>.</p>
+  <ul id="paymentList">
+    <li>200 Frw → 3 codes</li>
+    <li>1000 Frw → 4 codes</li>
+    <li>1600 Frw → 5 codes</li>
+    <li>2000 Frw → 6 codes</li>
+  </ul>
+  <input type="text" id="userCode" placeholder="Injiza code hano">
+  <button onclick="verifyCode()">Emeza Code & Tangira Exam</button>
+</div>
+
+<div id="timerDiv" style="display:none;">
+  <p id="timer">Iminota isigaye: 00:00</p>
+</div>
+
+<div id="examDiv" style="display:none;">
+  <h2 id="examTitle">Exam: Questions 20</h2>
+  <div id="questionsContainer"></div>
+  <button onclick="submitExam()">Submita Exam</button>
+  <div id="scoreDiv"></div>
+</div>
+```
+
+  </div>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>
+
+--- style.css ---
+body{font-family:Arial,sans-serif;background:#f4f4f4;margin:0;padding:20px;}
+.container{max-width:900px;margin:auto;background:#fff;padding:20px;border-radius:8px;}
+h1,h2{text-align:center;}
+button{padding:10px 20px;margin:10px 0;cursor:pointer;}
+input,textarea,select{padding:8px;width:100%;margin-bottom:10px;}
+.question{margin-bottom:15px;}
+.correct{color:green;}
+.wrong{color:red;}
+#paymentPrompt{background:#fffae6;border:1px solid #ffd42a;padding:15px;border-radius:5px;margin-bottom:15px;}
+#timer{font-weight:bold;color:red;margin-bottom:15px;}
+
+--- js/app.js ---
+const adminName="manigabeonesme";
+const adminPass="Gishari@123";
+let questions=[];
+let codes=[];
+let notes="";
+let socialLinks={fb:"",tiktok:""};
+let selectedQuestions=[];
+let timerInterval;
+codes=[
+{code:"200A", remainingUses:2},{code:"200B", remainingUses:2},{code:"200C", remainingUses:2},
+{code:"1000A", remainingUses:4},{code:"1000B", remainingUses:4},
+{code:"1600A", remainingUses:5},
+{code:"2000A", remainingUses:6}
+];
+questions=[
+{ q:"Ikinyabiziga cyose cyangwa ibinyabiziga bigenda bigomba kugira:", options:["Umuyobozi","Umuherekeza","A na B ni ibisubizo by’ukuri","Nta gisubizo cy’ukuri kirimo"], answer:2 },
+{ q:"Ijambo “akayira” bivuga inzira nyabagendwa ifunganye yagenewe gusa:", options:["Abanyamaguru","Ibinyabiziga bigendera ku biziga bibiri","A na B ni ibisubizo by’ukuri","Nta gisubizo cy’ukuri kirimo"], answer:2 }
+];
+function login(){const name=document.getElementById("loginName").value.trim();const pass=document.getElementById("loginPass").value.trim();if(name===adminName && pass===adminPass){document.getElementById("loginView").style.display="none";document.getElementById("adminView").style.display="block";} else {document.getElementById("loginView").style.display="none";document.getElementById("userView").style.display="block";}}
+function addQuestion(){const val=document.getElementById("newQuestion").value.trim();const parts=val.split("|");if(parts.length!==6){alert("Format ya question ntikwiye!"); return;}questions.push({q:parts, options:[parts[1],parts[2],parts[3],parts[4]], answer:parseInt(parts[5])});document.getElementById("adminStatus").innerText=`Questions: ${questions.length}`;document.getElementById("newQuestion").value="";}
+function addCode(){const code=document.getElementById("newCode").value.trim();const uses=parseInt(document.getElementById("codeUses").value);if(!code||!uses){alert("Andika code na uses!"); return;}codes.push({code:code, remainingUses:uses});document.getElementById("adminStatus").innerText=`Codes: ${codes.length}`;document.getElementById("newCode").value="";document.getElementById("codeUses").value="";}
+function saveNotes(){notes=document.getElementById("notesArea").value.trim();document.getElementById("adminStatus").innerText="Notes & links saved!";}
+function saveSocial(){socialLinks.fb=document.getElementById("fbLink").value.trim();socialLinks.tiktok=document.getElementById("tiktokLink").value.trim();document.getElementById("adminStatus").innerText="Social Links saved!";}
+function verifyCode(){const enteredCode=document.getElementById("userCode").value.trim();const found=codes.find(c=>c.code===enteredCode && c.remainingUses>0);if(!found){alert("Code ntabwo iri valid cyangwa yamaze gukoreshwa!"); return;}found.remainingUses--;alert("Code yemerewe! Tangira exam.");document.getElementById("paymentPrompt").style.display="none";document.getElementById("examDiv").style.display="block";document.getElementById("timerDiv").style.display="block";startTimer(20);loadExam();}
+function startTimer(minutes){let time=minutes*60;timerInterval=setInterval(()=>{let min=Math.floor(time/60);let sec=time%60;document.getElementById("timer").innerText=`Iminota isigaye: ${min.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;if(time<=0){clearInterval(timerInterval); submitExam(); alert("Igihe kirarangiye! Exam irarangiye.");}time--;},1000);}
+function loadExam(){selectedQuestions=[];const usedIndices=new Set();while(selectedQuestions.length<20){let idx=Math.floor(Math.random()*questions.length);if(!usedIndices.has(idx)){selectedQuestions.push(questions[idx]); usedIndices.add(idx);}if(usedIndices.size===questions.length) break;}const container=document.getElementById("questionsContainer");container.innerHTML="";selectedQuestions.forEach((q,i)=>{let div=document.createElement("div");div.className="question";div.innerHTML=`<p>${i+1}. ${q.q}</p>`+ q.options.map((opt,j)=>`<label><input type="radio" name="q${i}" value="${j}"> ${opt}</label><br>`).join("");container.appendChild(div);});}
+function submitExam(){clearInterval(timerInterval);let score=0;selectedQuestions.forEach((q,i)=>{const radios=document.getElementsByName("q"+i);radios.forEach(r=>{if(r.checked && parseInt(r.value)===q.answer) score++;});});document.getElementById("scoreDiv").innerHTML=`<h3>Watsinze: ${score}/${selectedQuestions.length}</h3>`;}
+function switchLang(){const lang=document.getElementById("langSelect").value;if(lang==="en"){document.getElementById("title").innerText="Learn Road Traffic Rules";document.getElementById("paymentText").innerText="You must pay before starting exam. Send screenshot to WhatsApp 0786959068 or code 344886 onesme.";document.getElementById("examTitle").innerText="Exam: 20 Questions";document.getElementById("paymentList").innerHTML="<li>200 Frw → 3 codes</li><li>1000 Frw → 4 codes</li><li>1600 Frw → 5 codes</li><li>2000 Frw → 6 codes</li>";} else {document.getElementById("title").innerText="Iga Amategeko y’Umuhanda";document.getElementById("paymentText").innerText="Ugomba kwishyura mbere yo gutangira ikizamini. Ohereza screenshot kuri WhatsApp 0786959068 cyangwa code 344886 onesme.";document.getElementById("examTitle").innerText="Exam: Questions 20";document.getElementById("paymentList").innerHTML="<li>200 Frw → 3 codes</li><li>1000 Frw → 4 codes</li><li>1600 Frw → 5 codes</li><li>2000 Frw → 6 codes</li>";}}
